@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../../layout/BaseLayout.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+type BlogPost = CollectionEntry<"blog">;
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+function makeExcerpt(markdownBody: string) {
+  const plainText = markdownBody
+    .replace(/\$\$[\s\S]*?\$\$/g, " ")
+    .replace(/\$[^$\n]+\$/g, " ")
+    .replace(/\\\[[\s\S]*?\\\]/g, " ")
+    .replace(/\\\([\s\S]*?\\\)/g, " ")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/\\[a-zA-Z]+/g, " ")
+    .replace(/[{}]/g, " ")
+    .replace(/[>*_~]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const words = plainText.split(" ");
+  return words.length > 36 ? `${words.slice(0, 36).join(" ")}...` : plainText;
+}
+
+function getOverview(post: BlogPost) {
+  const explicitExcerpt = post.data.excerpt?.trim();
+  if (explicitExcerpt) return explicitExcerpt;
+  return makeExcerpt(post.body ?? "");
+}
+
+const posts: BlogPost[] = await getCollection("blog");
+const sortedPosts = posts.sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+);
+---
+
+<BaseLayout
+  title="Writing | muhammadakfz"
+  description="Longform essays on product, startups, and learning from expensive mistakes."
+>
+  <section class="page-heading">
+    <h1 class="page-title yellowtail-regular">Writing</h1>
+    <p class="page-summary">Notes on product thinking, operating systems, and lessons from real builds.</p>
+  </section>
+
+  {
+    sortedPosts.length > 0 ? (
+      <section class="writing-list" aria-label="Blog entries">
+        {sortedPosts.map((post) => (
+          <article class="writing-item">
+            <a class="writing-title" href={`/blog/${post.id}`}>
+              {post.data.title}
+            </a>
+            <p class="writing-meta">{dateFormatter.format(new Date(post.data.date))}</p>
+            <p class="writing-excerpt">{getOverview(post)}</p>
+          </article>
+        ))}
+      </section>
+    ) : (
+      <p class="empty-state">No writing published yet.</p>
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Longitudinal Wave Diagram 4</title>
+  <desc id="desc">Placeholder diagram for wave and vibration article.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f6f9ff" />
+      <stop offset="100%" stop-color="#e8f0ff" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)" />
+  <rect x="60" y="60" width="1080" height="580" rx="24" fill="#ffffff" stroke="#cad9ff" stroke-width="4" />
+  <text x="600" y="310" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="48" fill="#27498f">
+    Longitudinal Wave Diagram 4
+  </text>
+  <text x="600" y="370" text-anchor="middle" font-family="Manrope, Arial, sans-serif" font-size="30" fill="#5a6f9d">
+    Placeholder image - replace with your original figure
+  </text>
+</svg>

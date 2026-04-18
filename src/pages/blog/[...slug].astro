@@ -1,0 +1,238 @@
+---
+import BaseLayout from "../../layout/BaseLayout.astro";
+import { getCollection, render, type CollectionEntry } from "astro:content";
+
+type BlogPost = CollectionEntry<"blog">;
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+
+export async function getStaticPaths() {
+  const posts: BlogPost[] = await getCollection("blog");
+  return posts.map((post: BlogPost) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: BlogPost;
+}
+
+const { post } = Astro.props as Props;
+const { Content, headings } = await render(post);
+const formattedDate = dateFormatter.format(new Date(post.data.date));
+const tocItems = headings.filter((heading) => heading.depth <= 4);
+---
+
+<BaseLayout title={`${post.data.title} | Fahrur`} description={post.data.description}>
+  <a class="back-link" href="/blog/">← Back to Writing</a>
+
+  <div class="article-layout">
+    <article class="article-shell">
+      <header class="article-header">
+        <h1 class="article-title">{post.data.title}</h1>
+        <p class="article-date">{formattedDate}</p>
+        <p class="article-subtitle">{post.data.description}</p>
+
+        {
+          post.data.tags?.length ? (
+            <ul class="tag-row" aria-label="Post tags">
+              {post.data.tags.map((tag) => (
+                <li>{tag}</li>
+              ))}
+            </ul>
+          ) : null
+        }
+      </header>
+
+      <div class="article-prose">
+        <Content />
+      </div>
+    </article>
+
+    {
+      tocItems.length > 0 ? (
+        <aside class="article-toc" aria-label="On this page">
+          <p class="article-toc-title">On this page</p>
+          <ol class="article-toc-list">
+            {tocItems.map((heading) => (
+              <li class:list={["article-toc-item", `depth-${heading.depth}`]}>
+                <a class="article-toc-link" data-toc-link href={`#${heading.slug}`}>
+                  {heading.text}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </aside>
+      ) : null
+    }
+  </div>
+
+  <script is:inline>
+    (() => {
+      const setupActiveToc = () => {
+        if (typeof window === "undefined") return;
+
+        const cleanupKey = "__articleTocCleanup";
+        const previousCleanup = window[cleanupKey];
+        if (typeof previousCleanup === "function") {
+          previousCleanup();
+        }
+        window[cleanupKey] = undefined;
+
+        const toc = document.querySelector(".article-toc");
+        if (!toc) return;
+
+        const tocList = toc.querySelector(".article-toc-list");
+        if (!tocList) return;
+
+        const articleShell = document.querySelector(".article-shell");
+
+        const links = [...toc.querySelectorAll("[data-toc-link]")];
+        const items = links
+          .map((link) => {
+            const href = link.getAttribute("href");
+            if (!href || !href.startsWith("#")) return null;
+
+            const id = decodeURIComponent(href.slice(1));
+            const heading = document.getElementById(id);
+            if (!heading) return null;
+
+            return { id, heading, link };
+          })
+          .filter(Boolean);
+
+        if (!items.length) return;
+
+        const setActive = (activeId) => {
+          for (const item of items) {
+            const isActive = item.id === activeId;
+            item.link.classList.toggle("is-active", isActive);
+            if (isActive) {
+              item.link.setAttribute("aria-current", "true");
+            } else {
+              item.link.removeAttribute("aria-current");
+            }
+          }
+        };
+
+        const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+        const updateActiveFromScroll = ({ allowTocAutoScroll = true } = {}) => {
+          const anchorOffset = clamp(window.innerHeight * 0.28, 120, 260);
+          const anchorY = window.scrollY + anchorOffset;
+          const headingTops = items.map((item) => item.heading.getBoundingClientRect().top + window.scrollY);
+          const maxScrollY = Math.max(document.documentElement.scrollHeight - window.innerHeight, 0);
+          const isNearPageEnd = window.scrollY >= maxScrollY - 2;
+
+          const articleBottomY = articleShell
+            ? articleShell.getBoundingClientRect().bottom + window.scrollY
+            : headingTops[headingTops.length - 1];
+          const isNearArticleEnd = anchorY >= articleBottomY - 4;
+
+          if (isNearPageEnd || isNearArticleEnd) {
+            const lastId = items[items.length - 1].id;
+            setActive(lastId);
+            tocList.style.setProperty("--toc-progress", "1");
+            return;
+          }
+
+          const articleTopY = articleShell
+            ? articleShell.getBoundingClientRect().top + window.scrollY
+            : headingTops[0];
+
+          if (anchorY <= articleTopY + 16) {
+            setActive(items[0].id);
+            tocList.style.setProperty("--toc-progress", "0");
+            return;
+          }
+
+          let activeIndex = 0;
+          for (let index = 0; index < headingTops.length; index += 1) {
+            if (anchorY >= headingTops[index]) {
+              activeIndex = index;
+            } else {
+              break;
+            }
+          }
+
+          let withinSegment = 0;
+          if (activeIndex < headingTops.length - 1) {
+            const currentTop = headingTops[activeIndex];
+            const nextTop = headingTops[activeIndex + 1];
+            const segment = Math.max(nextTop - currentTop, 1);
+            withinSegment = clamp((anchorY - currentTop) / segment, 0, 1);
+          }
+
+          const activeLink = items[activeIndex].link;
+          const activeLinkTop = activeLink.offsetTop;
+          const activeLinkBottom = activeLinkTop + activeLink.offsetHeight;
+          const visibleTop = toc.scrollTop + 12;
+          const visibleBottom = toc.scrollTop + toc.clientHeight - 12;
+
+          if (allowTocAutoScroll && (activeLinkTop < visibleTop || activeLinkBottom > visibleBottom)) {
+            const targetScrollTop = activeLinkTop - toc.clientHeight * 0.35;
+            toc.scrollTo({ top: Math.max(targetScrollTop, 0), behavior: "auto" });
+          }
+
+          const linkCenters = items.map((item) => item.link.offsetTop + item.link.offsetHeight / 2);
+          let visualProgress = 0;
+
+          if (linkCenters.length === 1) {
+            visualProgress = anchorY >= headingTops[0] ? 1 : 0;
+          } else {
+            const currentCenter = linkCenters[activeIndex];
+            const nextCenter = linkCenters[Math.min(activeIndex + 1, linkCenters.length - 1)];
+            const interpolatedCenter = currentCenter + (nextCenter - currentCenter) * withinSegment;
+            const maxCenter = Math.max(linkCenters[linkCenters.length - 1], 1);
+            visualProgress = interpolatedCenter / maxCenter;
+          }
+
+          const clampedProgress = clamp(visualProgress, 0, 1);
+          setActive(items[activeIndex].id);
+          tocList.style.setProperty("--toc-progress", String(clampedProgress));
+        };
+
+        let ticking = false;
+        let pendingAutoScroll = false;
+        const scheduleUpdate = (allowTocAutoScroll = true) => {
+          pendingAutoScroll = pendingAutoScroll || allowTocAutoScroll;
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(() => {
+            updateActiveFromScroll({ allowTocAutoScroll: pendingAutoScroll });
+            pendingAutoScroll = false;
+            ticking = false;
+          });
+        };
+
+        const onWindowScroll = () => scheduleUpdate(true);
+        const onTocScroll = () => scheduleUpdate(false);
+
+        window.addEventListener("scroll", onWindowScroll, { passive: true });
+        window.addEventListener("resize", onWindowScroll);
+        window.addEventListener("hashchange", onWindowScroll);
+        toc.addEventListener("scroll", onTocScroll, { passive: true });
+        updateActiveFromScroll({ allowTocAutoScroll: true });
+
+        window[cleanupKey] = () => {
+          window.removeEventListener("scroll", onWindowScroll);
+          window.removeEventListener("resize", onWindowScroll);
+          window.removeEventListener("hashchange", onWindowScroll);
+          toc.removeEventListener("scroll", onTocScroll);
+        };
+      };
+
+      setupActiveToc();
+
+      const pageLoadListenerKey = "__articleTocPageLoadListenerAttached";
+      if (!window[pageLoadListenerKey]) {
+        document.addEventListener("astro:page-load", setupActiveToc);
+        window[pageLoadListenerKey] = true;
+      }
+    })();
+  </script>
+</BaseLayout>

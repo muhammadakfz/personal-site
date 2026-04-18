@@ -1,17 +1,36 @@
 ---
-
+import BaseLayout from "../layout/BaseLayout.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+	title="muhammadakfz | Home"
+	description="Builder and writer documenting product lessons, experiments, and execution frameworks."
+>
+	<section class="home-profile" aria-label="Profile hero">
+		<img
+			class="profile-photo"
+			src="/profile.jpeg"
+			alt="Profile illustration"
+			width="148"
+			height="148"
+		/>
+
+		<div class="profile-copy">
+			<!-- <p class="home-kicker">Personal Lab</p> -->
+			<h1 class="profile-name yellowtail-regular">muhammadakfz</h1>
+			<!-- <p class="profile-line">
+				Builder and writer documenting systems, experiments, and execution lessons.
+			</p> -->
+			<p class="profile-line">
+				Writing focused on products, startups, and practical frameworks.
+			</p>
+
+			<div class="profile-actions" aria-label="Primary actions">
+				<a class="profile-action is-primary" href="/blog/">Read Writing</a>
+				<a class="profile-action" href="https://www.instagram.com/muhammadakfz" target="_blank" rel="noreferrer"
+					>Instagram</a
+				>
+			</div>
+		</div>
+	</section>
+</BaseLayout>

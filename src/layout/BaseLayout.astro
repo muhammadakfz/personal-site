@@ -1,0 +1,128 @@
+---
+import { ClientRouter } from "astro:transitions";
+import "katex/dist/katex.min.css";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Fahrur",
+  description = "Notes on building products, thinking clearly, and learning in public.",
+} = Astro.props as Props;
+
+const currentPath = Astro.url.pathname;
+const isHome = currentPath === "/";
+const isBlogIndex = currentPath === "/blog" || currentPath === "/blog/";
+const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Prata&family=Yellowtail&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <ClientRouter />
+    <title>{title}</title>
+  </head>
+  <body class="site-shell">
+    <details class="menu-drawer" id="site-menu">
+      <summary class="menu-button" aria-label="Toggle menu">
+        <span class="menu-lines" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+      </summary>
+
+      <div class="menu-overlay" role="dialog" aria-label="Site menu" aria-modal="true">
+        <nav class="menu-primary" aria-label="Site links">
+          <a class:list={["menu-link", isHome && "is-active"]} href="/">Home</a>
+          <a class="menu-link" href="https://github.com/" target="_blank" rel="noreferrer"
+            >Portfolio</a
+          >
+          <a class:list={["menu-link", (isBlogIndex || isArticle) && "is-active"]} href="/blog/"
+            >Writing</a
+          >
+        </nav>
+
+        <div class="menu-socials">
+          <p>SOCIALS</p>
+          <!-- <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YouTube</a> -->
+          <a href="https://www.instagram.com/muhammadakfz" target="_blank" rel="noreferrer">Instagram</a>
+          <a href="https://www.linkedin.com/in/muhammadakfz" target="_blank" rel="noreferrer">LinkedIn</a>
+        </div>
+      </div>
+    </details>
+
+    <script is:inline>
+      (() => {
+        const setupMenuInteractions = () => {
+          if (typeof window === "undefined") return;
+
+          const cleanupKey = "__siteMenuCleanup";
+          const previousCleanup = window[cleanupKey];
+          if (typeof previousCleanup === "function") {
+            previousCleanup();
+          }
+          window[cleanupKey] = undefined;
+
+          const menu = document.getElementById("site-menu");
+          if (!(menu instanceof HTMLDetailsElement)) return;
+
+          const menuButton = menu.querySelector(".menu-button");
+
+          const onEscape = (event) => {
+            if (event.key !== "Escape" || !menu.open) return;
+            menu.open = false;
+            if (menuButton instanceof HTMLElement) {
+              menuButton.focus();
+            }
+          };
+
+          const onMenuClick = (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+
+            const clickedLink = target.closest("a");
+            if (!clickedLink) return;
+
+            menu.open = false;
+          };
+
+          window.addEventListener("keydown", onEscape);
+          menu.addEventListener("click", onMenuClick);
+
+          window[cleanupKey] = () => {
+            window.removeEventListener("keydown", onEscape);
+            menu.removeEventListener("click", onMenuClick);
+          };
+        };
+
+        setupMenuInteractions();
+
+        const pageLoadListenerKey = "__siteMenuPageLoadListenerAttached";
+        if (!window[pageLoadListenerKey]) {
+          document.addEventListener("astro:page-load", setupMenuInteractions);
+          window[pageLoadListenerKey] = true;
+        }
+      })();
+    </script>
+
+    <main
+      id="content"
+      class:list={["site-main", isHome && "is-home", isBlogIndex && "is-blog", isArticle && "is-article"]}
+    >
+      <slot />
+    </main>
+  </body>
+</html>
