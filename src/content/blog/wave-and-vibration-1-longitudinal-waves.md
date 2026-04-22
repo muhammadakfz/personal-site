@@ -1,17 +1,18 @@
 ---
 title: "Wave and Vibration #1: Longitudinal Waves"
 date: "2025-11-02"
-description: "Ringkasan rangkumanku mata kuliah Getaran dan Gelombang, tentang Gelombang Longitudinal."
+description: "Catatan kuliah Getaran dan Gelombang: konsep dasar gelombang longitudinal, bunyi di gas dan padatan, plus contoh soal."
 categories: "Physics Waves"
 tags: ["Waves", "Longitudinal Waves", "Sound Waves", "Physics"]
 toc: true
 toc_sticky: false
-excerpt: "Ringkasan rangkumanku mata kuliah Getaran dan Gelombang, tentang Gelombang Longitudinal."
+excerpt: "Catatan kuliah tentang gelombang longitudinal: konsep inti, persamaan penting, dan contoh soal."
 ---
 
-Gelombang longitudinal adalah gelombang arah rambatnya sama dengan arah propagasinya, contohnya suara dan pegas.
+Ini rangkuman pribadi dari materi awal Getaran dan Gelombang.
+Di gelombang longitudinal, arah getar partikel sejajar dengan arah rambat gelombang. Contoh paling gampang: bunyi di udara dan gelombang kompresi pada pegas.
 
-# Sound Waves in Gases
+# Gelombang Bunyi di Gas
 
 #### Tekanan
 
@@ -39,7 +40,7 @@ Kondensasi (compression) didefinisikan $s = -\delta$, sehingga hubungan lengkapn
 
 $$ \boxed{\delta = \frac{v}{V_0} = \frac{\partial \eta}{\partial x} = -s.} $$
 
-Note: Bentuk $\Delta \eta / \Delta x$ menjadi turunan $\partial \eta / \partial x$ dalam limit elemen yang sangat kecil.
+Catatan: Bentuk $\Delta \eta / \Delta x$ menjadi turunan $\partial \eta / \partial x$ saat elemen diambil sangat kecil.
 
 #### Kondensasi (Fractional Change in Density)
 
@@ -110,7 +111,7 @@ Kompresibilitas $\kappa$ adalah kebalikan dari modulus kompresi, $\kappa = 1/B$.
 
 Semua perubahan adiabatik dalam gas mengikuti hubungan: $$ P V^\gamma = \text{konstanta} $$.
 
-Sehingga persamaan differensial untuk tekanan dan volume adalah:
+Sehingga persamaan diferensial untuk tekanan dan volume adalah:
 
 $$ dP \cdot V^\gamma + P \cdot \gamma V^{\gamma - 1} dV = 0 $$
 
@@ -226,7 +227,7 @@ Intensitas (daya per luas) untuk gelombang 1D maju adalah energi rata-rata dikal
 
 $$ \boxed{\; I = \langle E_{total} \rangle c = \frac{1}{2} \rho_0 c \omega^2 \eta_m^2 = \frac{p_m^2}{2 \rho_0 c} \;} $$
 
-### Sound Waves in Solids
+### Gelombang Bunyi di Padatan
 
 Gelombang longitudinal lebih mudah merambat di padatan karena sifat elastisnya yang lebih kuat dibanding fluida. Padatan dapat menahan tegangan geser (shear stress) selain tegangan normal (normal stress) yang relevan untuk gelombang longitudinal.
 
@@ -311,7 +312,7 @@ $$
 \boxed{\; c_T = \sqrt{\frac{\mu}{\rho}} \;}
 $$
 
-### Longitudinal Waves in a Periodic Structure
+### Gelombang Longitudinal pada Struktur Periodik
 
 Gelombang longitudinal juga dapat merambat dalam struktur periodik, seperti rantai massa-pegas. Model sederhana ini memberikan informasi mengenai perilaku gelombang dalam media diskrit.
 
@@ -322,7 +323,7 @@ Gelombang longitudinal juga dapat merambat dalam struktur periodik, seperti rant
 	<br />
 </p>
 
-Anggap kisi 1D dengan jarak antarneighbor $a$. Dua atom yang berdekatan dihubungkan oleh "pegas" efektif dengan kekakuan $s$ (gaya per perpindahan). Untuk gelombang longitudinal, perpindahan antar-atom $\eta$ menghasilkan strain $\varepsilon = \eta/a$. Gaya pemulih normal yang bekerja pada muka sel luas $a^2$ sebanding dengan $s\eta/a^2 = (s/a)\,\varepsilon$ sehingga rasio tegangan-regangan (Young's modulus) pada skala makro adalah
+Anggap kisi 1D dengan jarak antar-atom tetangga terdekat $a$. Dua atom yang berdekatan dihubungkan oleh "pegas" efektif dengan kekakuan $s$ (gaya per perpindahan). Untuk gelombang longitudinal, perpindahan antar-atom $\eta$ menghasilkan strain $\varepsilon = \eta/a$. Gaya pemulih normal yang bekerja pada muka sel luas $a^2$ sebanding dengan $s\eta/a^2 = (s/a)\,\varepsilon$, jadi rasio tegangan-regangan (Young's modulus) pada skala makro adalah
 
 $$ \boxed{\; Y = \frac{s}{a} \;} \qquad \text{atau setara} \qquad \boxed{\; s = Y a \;} $$
 
@@ -334,7 +335,7 @@ di mana $c_0$ adalah kecepatan bunyi di padatan (orde $\sim 5\times10^3\,\text{m
 
 #### Model Diskret dan Dispersi
 
-Untuk deskripsi lebih presisi, rantai diskret 1D memenuhi persamaan gerak partikel ke-$r$:
+Untuk deskripsi yang lebih presisi, rantai diskret 1D memenuhi persamaan gerak partikel ke-$r$:
 
 $$ m\,\ddot{\eta}_r = s\,(\eta_{r+1} + \eta_{r-1} - 2\eta_r), \qquad s = \frac{T}{a}. $$
 
@@ -342,7 +343,7 @@ Dengan ansatz gelombang $\eta_r = \eta_{\max} e^{\,i(\omega t - k r a)}$ diperol
 
 $$ \boxed{\; \omega^2 = \frac{4s}{m}\,\sin^2\!\left(\frac{k a}{2}\right) \;} $$
 
-### Reflection and Transmission of Sound Waves at Boundaries
+### Refleksi dan Transmisi Gelombang Bunyi pada Batas Medium
 
 <p align="center">
   <img src="/assets/images/longitudinalWave/4.svg" width="680" alt="Longitudinal wave diagram 4" />
@@ -354,7 +355,7 @@ Bayangkan gelombang suara datar menumbuk tegak lurus (normal incidence) sebuah b
 - Kecepatan partikel di permukaan harus sama di kedua sisi (tidak ada yang tertinggal). Dalam notasi fasor: $\dot{\eta}_i + \dot{\eta}_r = \dot{\eta}_t$.
 - Tekanan di permukaan juga harus sama (gaya seimbang): $p_i + p_r = p_t$.
 
-Dengan indeks $i$ (incident), $r$ (reflected, arah balik), $t$ (transmitted, masuk medium 2):
+Dengan indeks $i$ (datang), $r$ (pantul, arah balik), $t$ (transmisi, masuk medium 2):
 
 $$ \dot{\eta}_i + \dot{\eta}_r = \dot{\eta}_t, \qquad p_i + p_r = p_t. $$
 
@@ -371,7 +372,7 @@ Sehingga:
 Masukkan ke kontinuitas tekanan: $Z_1 \dot{\eta}_i - Z_1 \dot{\eta}_r = Z_2 \dot{\eta}_t$.
 Gunakan kontinuitas kecepatan: $\dot{\eta}_t = \dot{\eta}_i + \dot{\eta}_r$.
 
-Eliminasi $u_t$ memberi:
+Eliminasi $\dot{\eta}_t$ memberi:
 
 $$ Z_1 \dot{\eta}_i - Z_1 \dot{\eta}_r = Z_2 (\dot{\eta}_i + \dot{\eta}_r) \;\Rightarrow\; (Z_1 - Z_2) \dot{\eta}_i = (Z_1 + Z_2) \dot{\eta}_r. $$
 
@@ -389,9 +390,9 @@ diperoleh rasio amplitudo tekanan terpantul dan transmisi:
 
 $$ \boxed{\; \frac{p_r}{p_i} = \frac{Z_2 - Z_1}{Z_1 + Z_2} = -\frac{\dot{\eta}_r}{\dot{\eta}_i} \;} \qquad \boxed{\; \frac{p_t}{p_i} = \frac{2 Z_2}{Z_1 + Z_2} = \frac{Z_2}{Z_1} \frac{\dot{\eta}_t}{\dot{\eta}_i} \;} $$
 
-jika $Z_1 > Z_2$ maka $u_r/u_i > 0$ (kecepatan incident dan reflected sefasa) sedangkan $p_r/p_i < 0$ (tekanan berlawanan fasa). Jika $Z_1 < Z_2$ kebalikannya: tekanan sefasa, kecepatan berlawanan fasa.
+Jika $Z_1 > Z_2$ maka $\dot{\eta}_r/\dot{\eta}_i > 0$ (kecepatan datang dan pantul sefasa) sedangkan $p_r/p_i < 0$ (tekanan berlawanan fasa). Jika $Z_1 < Z_2$ kebalikannya: tekanan sefasa, kecepatan berlawanan fasa.
 
-### Reflection and Transmission of Sound Intensity
+### Refleksi dan Transmisi Intensitas Bunyi
 
 Bentuk setara jika ditulis eksplisit dengan nilai rms (akar-mean-kuadrat) kecepatan partikel:
 
@@ -413,17 +414,17 @@ Amplitudo puncak (peak) atau rms memberikan $R$ dan $T$ yang sama karena faktor 
 
 #### Gelombang Longitudinal dalam Pipa Terbuka
 
-Pressure oscillations in a hollow pipe of length L are described by the wave equation
+Osilasi tekanan pada pipa berongga dengan panjang $L$ dinyatakan oleh persamaan gelombang
 
 $$ \frac{\partial^2 p}{\partial z^2} = \frac{\rho_0}{B} \, \frac{\partial^2 p}{\partial t^2} $$
 
-where $p$ is the over-pressure (over and above the one atmosphere ambient pressure), $\rho_0$ is the density of the gas in the pipe, $B$ is the bulk modulus, and $z$ is the longitudinal direction along the pipe. Assuming a solution of the form
+dengan $p$ sebagai over-pressure (kelebihan tekanan terhadap tekanan atmosfer), $\rho_0$ massa jenis gas di dalam pipa, $B$ bulk modulus, dan $z$ arah longitudinal sepanjang pipa. Asumsikan solusi berbentuk
 
 $$ p(z,t) = [\,C \cos k z + D \sin k z\,] \cos \omega t $$
 
-find all the unknowns $(C, D, B, \text{ and } \omega)$ for the case where the pipe is open at both ends and $p(z = L/2, \, t = 0) = p_0$.
+Tentukan semua parameter yang belum diketahui $(C, D, B, \text{ dan } \omega)$ untuk kasus pipa terbuka di kedua ujung dengan kondisi $p(z = L/2, \, t = 0) = p_0$.
 
-**Solution:**
+**Penyelesaian:**
 
 - $$p(0, t) = 0 \Rightarrow p(0, t) = [C \cos(0) + D \sin(0)] \cos(\omega t) = C \cos(\omega t) $$
 
@@ -488,11 +489,11 @@ $$ \boxed{C = 0}, \quad \boxed{D = \frac{p_0}{(-1)^{(n-1)/2}}}, \quad \boxed{\om
 
 di mana $n$ adalah bilangan bulat ganjil ($n = 1, 3, 5, \dots$).
 
-#### Thermal Velocity and Speed of Sound
+#### Kecepatan Termal dan Kecepatan Bunyi
 
-Show that in a gas at temperature T the average thermal velocity of a molecule is approximately equal to the velocity of sound.
+Tunjukkan bahwa pada gas bersuhu $T$, kecepatan termal rata-rata molekul kira-kira seorde dengan kecepatan bunyi.
 
-**Solution:**
+**Penyelesaian:**
 
 Dari teori kinetik gas untuk partikel bermassa $m$ pada temperatur $T$:
 
@@ -512,17 +513,17 @@ $$ \frac{v_{\mathrm{rms}}}{c} = \sqrt{\frac{3}{\gamma}}. $$
 
 Untuk gas monoatomik $\gamma = 5/3$ maka $v_{\mathrm{rms}}/c = \sqrt{9/5} \approx 1.34$; untuk gas diatomik $\gamma = 7/5$ maka $v_{\mathrm{rms}}/c \approx \sqrt{3/1.4} \approx 1.46$. Jadi keduanya seorde dan dapat dikatakan kira-kira sama besar.
 
-karena $c^2 = \gamma N k_B T / M$, maka
+Karena $c^2 = \gamma N k_B T / M$, maka
 
 $$ M c^2 = \gamma N k_B T \equiv \alpha k_B T \approx \frac{5}{3} k_B T \quad (\text{gas monoatomik}), $$
 
 yang langsung menunjukkan skala energi per mole setara dengan energi kinetik termal, sehingga kecepatan termal rata-rata molekul dan kecepatan bunyi berbanding melalui faktor konstanta $\sqrt{3/\gamma}$.
 
-#### Acoustic Pressure at the Pain Threshold
+#### Tekanan Akustik pada Ambang Nyeri
 
-The velocity of sound in air density $1.29\,\mathrm{kg/m^3}$ may be taken as $c=330\,\mathrm{m/s}$. Show that the acoustic pressure for the painful sound of $I=10\,\mathrm{W/m^2}$ is about $6.5\times10^{-4}$ of an atmosphere.
+Ambil kecepatan bunyi di udara dengan massa jenis $1.29\,\mathrm{kg/m^3}$ sebagai $c=330\,\mathrm{m/s}$. Tunjukkan bahwa tekanan akustik untuk bunyi pada ambang nyeri $I=10\,\mathrm{W/m^2}$ sekitar $6.5\times10^{-4}$ atmosfer.
 
-**Solution:**
+**Penyelesaian:**
 
 $$ I = \frac{p_{\mathrm{rms}}^2}{\rho c} \quad\Rightarrow\quad p_{\mathrm{rms}} = \sqrt{I\,\rho c}. $$
 
@@ -534,11 +535,11 @@ Bandingkan dengan $1\,\text{atm} = 1.013\times10^5\,\mathrm{Pa}$:
 
 $$ \frac{p_{\mathrm{rms}}}{1\,\text{atm}} \approx \frac{65}{1.013\times10^5} \approx 6.4\times10^{-4} \;\approx\; 6.5\times10^{-4}. $$
 
-#### Displacement Amplitude at Painful Level (500 Hz)
+#### Amplitudo Perpindahan pada Ambang Nyeri (500 Hz)
 
-Show that the displacement amplitude of an air molecule at a painful sound level of $10\,\mathrm{W/m^2}$ at $500\,\mathrm{Hz}$ is approximately $6.9\times10^{-5}\,\mathrm{m}$.
+Tunjukkan bahwa amplitudo perpindahan molekul udara pada taraf bunyi ambang nyeri $10\,\mathrm{W/m^2}$ di frekuensi $500\,\mathrm{Hz}$ adalah sekitar $6.9\times10^{-5}\,\mathrm{m}$.
 
-**Solution:** Untuk gelombang bidang harmonik,
+**Penyelesaian:** Untuk gelombang bidang harmonik,
 
 $$ I = \tfrac{1}{2} \rho_0 c\,\omega^2\,\eta^2 \quad \Rightarrow \quad \eta = \frac{1}{\omega} \sqrt{\frac{2I}{\rho_0 c}} = \frac{1}{2\pi f}\,\sqrt{\frac{2I}{\rho_0 c}}. $$
 
@@ -546,11 +547,11 @@ Dengan $I=10\,\mathrm{W/m^2}$, $\rho_0 c = 1.29\times 330 = 425.7\,\mathrm{kg/(m
 
 $$ \eta \approx \frac{1}{2\pi\times 500} \sqrt{\frac{2\times 10}{425.7}} \;\approx\; 6.9\times10^{-5}\,\mathrm{m}. $$
 
-#### Displacement at Barely Audible Level (500 Hz)
+#### Amplitudo Perpindahan pada Bunyi Hampir Tak Terdengar (500 Hz)
 
-Barely audible sound in air has an intensity of $10^{-10}\,I_0$. Show that the displacement amplitude of an air molecule for sound at this level at $500\,\mathrm{Hz}$ is approximately $10^{-10}\,\mathrm{m}$; that is, about the size of the molecular diameter.
+Bunyi yang hampir tak terdengar di udara memiliki intensitas sebesar $10^{-10}\,I_0$. Tunjukkan bahwa amplitudo perpindahan molekul udara pada level ini di frekuensi $500\,\mathrm{Hz}$ kira-kira $10^{-10}\,\mathrm{m}$, yaitu seorde diameter molekul.
 
-**Solution:**
+**Penyelesaian:**
 
 $$ \eta = \frac{p_{\max}}{\rho_0 c\,\omega} = \frac{1}{2\pi \nu}\sqrt{\frac{2I}{\rho_0 c}}. $$
 
