@@ -41,12 +41,33 @@ body {
 	transition: background-color 360ms ease, color 260ms ease;
 }
 
+body.has-open-menu {
+	overflow: hidden;
+}
+
 body:has(.site-main:not(.is-article)) {
 	background: var(--color-bg);
 }
 
 .site-shell {
 	min-height: 100vh;
+}
+
+.skip-link {
+	position: fixed;
+	top: 1rem;
+	left: 1rem;
+	padding: 0.7rem 0.95rem;
+	border-radius: 0.7rem;
+	background: #0f172a;
+	color: #fff;
+	transform: translateY(-140%);
+	transition: transform 180ms ease;
+	z-index: 120;
+}
+
+.skip-link:focus {
+	transform: translateY(0);
 }
 
 a {
@@ -771,6 +792,12 @@ a {
 	padding: 0.25rem 0 0.25rem 1rem;
 	max-height: calc(100vh - 8.2rem);
 	overflow-y: auto;
+}
+
+.article-toc.is-static {
+	position: static;
+	top: auto;
+	max-height: none;
 }
 
 .article-toc-title {

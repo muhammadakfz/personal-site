@@ -37,9 +37,9 @@ function getOverview(post: BlogPost) {
   return makeExcerpt(post.body ?? "");
 }
 
-const posts: BlogPost[] = await getCollection("blog");
+const posts: BlogPost[] = await getCollection("blog", ({ data }) => !data.draft);
 const sortedPosts = posts.sort(
-  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime()
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
 );
 ---
 
@@ -60,7 +60,7 @@ const sortedPosts = posts.sort(
             <a class="writing-title" href={`/blog/${post.id}`}>
               {post.data.title}
             </a>
-            <p class="writing-meta">{dateFormatter.format(new Date(post.data.date))}</p>
+            <p class="writing-meta">{dateFormatter.format(post.data.date)}</p>
             <p class="writing-excerpt">{getOverview(post)}</p>
           </article>
         ))}

@@ -6,17 +6,22 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 
 const {
-  title = "Fahrur",
-  description = "Notes on building products, thinking clearly, and learning in public.",
+  title = "muhammadakfz",
+  description = "Personal website and writing space on physics, projects, and things I am learning in public.",
+  image = "/profile.jpeg",
 } = Astro.props as Props;
 
 const currentPath = Astro.url.pathname;
 const isHome = currentPath === "/";
 const isBlogIndex = currentPath === "/blog" || currentPath === "/blog/";
 const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
+const siteName = "muhammadakfz";
+const canonicalUrl = Astro.site ? new URL(currentPath, Astro.site) : Astro.url;
+const socialImageUrl = new URL(image, canonicalUrl);
 ---
 
 <html lang="en">
@@ -24,6 +29,19 @@ const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="author" content={siteName} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageUrl} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
@@ -36,6 +54,8 @@ const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
     <title>{title}</title>
   </head>
   <body class="site-shell">
+    <a class="skip-link" href="#content">Skip to content</a>
+
     <details class="menu-drawer" id="site-menu">
       <summary class="menu-button" aria-label="Toggle menu">
         <span class="menu-lines" aria-hidden="true">
@@ -47,7 +67,7 @@ const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
       <div class="menu-overlay" role="dialog" aria-label="Site menu" aria-modal="true">
         <nav class="menu-primary" aria-label="Site links">
           <a class:list={["menu-link", isHome && "is-active"]} href="/">Home</a>
-          <a class="menu-link" href="https://github.com/" target="_blank" rel="noreferrer"
+          <a class="menu-link" href="https://github.com/muhammadakfz" target="_blank" rel="noreferrer"
             >Portfolio</a
           >
           <a class:list={["menu-link", (isBlogIndex || isArticle) && "is-active"]} href="/blog/"
@@ -80,10 +100,19 @@ const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
           if (!(menu instanceof HTMLDetailsElement)) return;
 
           const menuButton = menu.querySelector(".menu-button");
+          const body = document.body;
+
+          const syncMenuState = () => {
+            body.classList.toggle("has-open-menu", menu.open);
+            if (menuButton instanceof HTMLElement) {
+              menuButton.setAttribute("aria-expanded", String(menu.open));
+            }
+          };
 
           const onEscape = (event) => {
             if (event.key !== "Escape" || !menu.open) return;
             menu.open = false;
+            syncMenuState();
             if (menuButton instanceof HTMLElement) {
               menuButton.focus();
             }
@@ -97,14 +126,21 @@ const isArticle = currentPath.startsWith("/blog/") && !isBlogIndex;
             if (!clickedLink) return;
 
             menu.open = false;
+            syncMenuState();
           };
+
+          const onToggle = () => syncMenuState();
 
           window.addEventListener("keydown", onEscape);
           menu.addEventListener("click", onMenuClick);
+          menu.addEventListener("toggle", onToggle);
+          syncMenuState();
 
           window[cleanupKey] = () => {
             window.removeEventListener("keydown", onEscape);
             menu.removeEventListener("click", onMenuClick);
+            menu.removeEventListener("toggle", onToggle);
+            body.classList.remove("has-open-menu");
           };
         };
 

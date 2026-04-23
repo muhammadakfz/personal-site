@@ -10,7 +10,7 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export async function getStaticPaths() {
-  const posts: BlogPost[] = await getCollection("blog");
+  const posts: BlogPost[] = await getCollection("blog", ({ data }) => !data.draft);
   return posts.map((post: BlogPost) => ({
     params: { slug: post.id },
     props: { post },
@@ -23,11 +23,11 @@ interface Props {
 
 const { post } = Astro.props as Props;
 const { Content, headings } = await render(post);
-const formattedDate = dateFormatter.format(new Date(post.data.date));
-const tocItems = headings.filter((heading) => heading.depth <= 4);
+const formattedDate = dateFormatter.format(post.data.date);
+const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4) : [];
 ---
 
-<BaseLayout title={`${post.data.title} | Fahrur`} description={post.data.description}>
+<BaseLayout title={`${post.data.title} | muhammadakfz`} description={post.data.description}>
   <a class="back-link" href="/blog/">← Back to Writing</a>
 
   <div class="article-layout">
@@ -55,7 +55,10 @@ const tocItems = headings.filter((heading) => heading.depth <= 4);
 
     {
       tocItems.length > 0 ? (
-        <aside class="article-toc" aria-label="On this page">
+        <aside
+          class:list={["article-toc", !post.data.toc_sticky && "is-static"]}
+          aria-label="On this page"
+        >
           <p class="article-toc-title">On this page</p>
           <ol class="article-toc-list">
             {tocItems.map((heading) => (
