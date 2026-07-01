@@ -18,7 +18,7 @@ const blog = defineCollection({
     }),
     tags: z.array(z.string()).default([]),
     toc: z.boolean().default(true),
-    toc_sticky: z.boolean().default(false),
+    toc_sticky: z.boolean().default(true),
     draft: z.boolean().default(false),
   }),
 });

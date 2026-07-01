@@ -29,6 +29,8 @@ const socialImageUrl = new URL(image, canonicalUrl);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="color-scheme" content="light" />
     <meta name="author" content={siteName} />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalUrl} />
@@ -45,7 +47,7 @@ const socialImageUrl = new URL(image, canonicalUrl);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700&family=Prata&family=Yellowtail&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@200;300;400;500;600;700&family=Prata&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Yellowtail&display=swap"
       rel="stylesheet"
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
@@ -57,29 +59,53 @@ const socialImageUrl = new URL(image, canonicalUrl);
     <a class="skip-link" href="#content">Skip to content</a>
 
     <details class="menu-drawer" id="site-menu">
-      <summary class="menu-button" aria-label="Toggle menu">
+      <summary
+        class="menu-button"
+        aria-label="Toggle menu"
+        aria-controls="site-menu-overlay"
+        aria-expanded="false"
+      >
         <span class="menu-lines" aria-hidden="true">
           <span></span>
           <span></span>
         </span>
       </summary>
 
-      <div class="menu-overlay" role="dialog" aria-label="Site menu" aria-modal="true">
+      <div
+        class="menu-overlay"
+        id="site-menu-overlay"
+        role="dialog"
+        aria-label="Site menu"
+        aria-modal="true"
+      >
         <nav class="menu-primary" aria-label="Site links">
-          <a class:list={["menu-link", isHome && "is-active"]} href="/">Home</a>
-          <a class="menu-link" href="https://github.com/muhammadakfz" target="_blank" rel="noreferrer"
+          <a class:list={["menu-link", isHome && "is-active"]} href="/" aria-current={isHome ? "page" : undefined}
+            >Home</a
+          >
+          <a
+            class="menu-link"
+            href="https://github.com/muhammadakfz"
+            target="_blank"
+            rel="noreferrer noopener"
             >Portfolio</a
           >
-          <a class:list={["menu-link", (isBlogIndex || isArticle) && "is-active"]} href="/blog/"
+          <a
+            class:list={["menu-link", (isBlogIndex || isArticle) && "is-active"]}
+            href="/blog/"
+            aria-current={isBlogIndex || isArticle ? "page" : undefined}
             >Writing</a
           >
         </nav>
 
         <div class="menu-socials">
           <p>SOCIALS</p>
-          <!-- <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YouTube</a> -->
-          <a href="https://www.instagram.com/muhammadakfz" target="_blank" rel="noreferrer">Instagram</a>
-          <a href="https://www.linkedin.com/in/muhammadakfz" target="_blank" rel="noreferrer">LinkedIn</a>
+          <!-- <a href="https://www.youtube.com/" target="_blank" rel="noreferrer noopener">YouTube</a> -->
+          <a href="https://www.instagram.com/muhammadakfz" target="_blank" rel="noreferrer noopener"
+            >Instagram</a
+          >
+          <a href="https://www.linkedin.com/in/muhammadakfz" target="_blank" rel="noreferrer noopener"
+            >LinkedIn</a
+          >
         </div>
       </div>
     </details>
@@ -100,7 +126,11 @@ const socialImageUrl = new URL(image, canonicalUrl);
           if (!(menu instanceof HTMLDetailsElement)) return;
 
           const menuButton = menu.querySelector(".menu-button");
+          const menuOverlay = menu.querySelector(".menu-overlay");
           const body = document.body;
+          const focusableSelector =
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])';
+          let previousFocus = null;
 
           const syncMenuState = () => {
             body.classList.toggle("has-open-menu", menu.open);
@@ -109,38 +139,90 @@ const socialImageUrl = new URL(image, canonicalUrl);
             }
           };
 
-          const onEscape = (event) => {
-            if (event.key !== "Escape" || !menu.open) return;
+          const closeMenu = ({ returnFocus = true } = {}) => {
+            if (!menu.open) return;
             menu.open = false;
             syncMenuState();
-            if (menuButton instanceof HTMLElement) {
+            if (returnFocus && menuButton instanceof HTMLElement) {
               menuButton.focus();
             }
+          };
+
+          const onEscape = (event) => {
+            if (event.key !== "Escape" || !menu.open) return;
+            closeMenu();
           };
 
           const onMenuClick = (event) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
 
+            if (menuOverlay instanceof HTMLElement && target === menuOverlay) {
+              closeMenu();
+              return;
+            }
+
             const clickedLink = target.closest("a");
             if (!clickedLink) return;
 
-            menu.open = false;
+            closeMenu({ returnFocus: false });
+          };
+
+          const onTabKey = (event) => {
+            if (event.key !== "Tab" || !menu.open || !(menuOverlay instanceof HTMLElement)) return;
+
+            const focusables = [...menuOverlay.querySelectorAll(focusableSelector)].filter((element) => {
+              if (!(element instanceof HTMLElement)) return false;
+              return !element.hasAttribute("disabled");
+            });
+
+            if (!focusables.length) return;
+
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            const activeElement = document.activeElement;
+
+            if (event.shiftKey) {
+              if (activeElement === first || activeElement === menuButton) {
+                event.preventDefault();
+                last.focus();
+              }
+              return;
+            }
+
+            if (activeElement === last) {
+              event.preventDefault();
+              first.focus();
+            }
+          };
+
+          const onToggle = () => {
+            if (menu.open) {
+              previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+              const firstLink = menu.querySelector(".menu-link");
+              if (firstLink instanceof HTMLElement) {
+                firstLink.focus();
+              }
+            } else if (previousFocus instanceof HTMLElement && document.activeElement === document.body) {
+              previousFocus.focus();
+            }
+
             syncMenuState();
           };
 
-          const onToggle = () => syncMenuState();
-
           window.addEventListener("keydown", onEscape);
+          window.addEventListener("keydown", onTabKey);
           menu.addEventListener("click", onMenuClick);
           menu.addEventListener("toggle", onToggle);
           syncMenuState();
 
           window[cleanupKey] = () => {
             window.removeEventListener("keydown", onEscape);
+            window.removeEventListener("keydown", onTabKey);
             menu.removeEventListener("click", onMenuClick);
             menu.removeEventListener("toggle", onToggle);
             body.classList.remove("has-open-menu");
+            previousFocus = null;
           };
         };
 

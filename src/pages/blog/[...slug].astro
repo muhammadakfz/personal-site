@@ -9,6 +9,34 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
+function toPlainText(markdownBody: string) {
+  return markdownBody
+    .replace(/\$\$[\s\S]*?\$\$/g, " ")
+    .replace(/\$[^$\n]+\$/g, " ")
+    .replace(/\\\[[\s\S]*?\\\]/g, " ")
+    .replace(/\\\([\s\S]*?\\\)/g, " ")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#+\s+/gm, "")
+    .replace(/\\[a-zA-Z]+/g, " ")
+    .replace(/[{}]/g, " ")
+    .replace(/[>*_~]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getReadingTime(markdownBody: string) {
+  const plainText = toPlainText(markdownBody);
+  if (!plainText) return "1 min read";
+
+  const wordsPerMinute = 220;
+  const minutes = Math.max(1, Math.round(plainText.split(" ").length / wordsPerMinute));
+  return `${minutes} min read`;
+}
+
 export async function getStaticPaths() {
   const posts: BlogPost[] = await getCollection("blog", ({ data }) => !data.draft);
   return posts.map((post: BlogPost) => ({
@@ -25,6 +53,8 @@ const { post } = Astro.props as Props;
 const { Content, headings } = await render(post);
 const formattedDate = dateFormatter.format(post.data.date);
 const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4) : [];
+const categories = post.data.categories ?? [];
+const readingTimeLabel = getReadingTime(post.body ?? "");
 ---
 
 <BaseLayout title={`${post.data.title} | muhammadakfz`} description={post.data.description}>
@@ -34,18 +64,13 @@ const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4
     <article class="article-shell">
       <header class="article-header">
         <h1 class="article-title">{post.data.title}</h1>
-        <p class="article-date">{formattedDate}</p>
+        <p class="article-date">
+          <time datetime={post.data.date.toISOString()}>{formattedDate}</time>
+          <span aria-hidden="true">·</span>
+          <span>{readingTimeLabel}</span>
+        </p>
         <p class="article-subtitle">{post.data.description}</p>
 
-        {
-          post.data.tags?.length ? (
-            <ul class="tag-row" aria-label="Post tags">
-              {post.data.tags.map((tag) => (
-                <li>{tag}</li>
-              ))}
-            </ul>
-          ) : null
-        }
       </header>
 
       <div class="article-prose">
@@ -139,7 +164,9 @@ const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4
           if (isNearPageEnd || isNearArticleEnd) {
             const lastId = items[items.length - 1].id;
             setActive(lastId);
-            tocList.style.setProperty("--toc-progress", "1");
+            const activeLink = items[items.length - 1].link;
+            tocList.style.setProperty("--toc-indicator-top", `${activeLink.offsetTop}px`);
+            tocList.style.setProperty("--toc-indicator-height", `${activeLink.offsetHeight}px`);
             return;
           }
 
@@ -149,7 +176,9 @@ const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4
 
           if (anchorY <= articleTopY + 16) {
             setActive(items[0].id);
-            tocList.style.setProperty("--toc-progress", "0");
+            const activeLink = items[0].link;
+            tocList.style.setProperty("--toc-indicator-top", `${activeLink.offsetTop}px`);
+            tocList.style.setProperty("--toc-indicator-height", `${activeLink.offsetHeight}px`);
             return;
           }
 
@@ -162,41 +191,11 @@ const tocItems = post.data.toc ? headings.filter((heading) => heading.depth <= 4
             }
           }
 
-          let withinSegment = 0;
-          if (activeIndex < headingTops.length - 1) {
-            const currentTop = headingTops[activeIndex];
-            const nextTop = headingTops[activeIndex + 1];
-            const segment = Math.max(nextTop - currentTop, 1);
-            withinSegment = clamp((anchorY - currentTop) / segment, 0, 1);
-          }
-
           const activeLink = items[activeIndex].link;
           const activeLinkTop = activeLink.offsetTop;
-          const activeLinkBottom = activeLinkTop + activeLink.offsetHeight;
-          const visibleTop = toc.scrollTop + 12;
-          const visibleBottom = toc.scrollTop + toc.clientHeight - 12;
-
-          if (allowTocAutoScroll && (activeLinkTop < visibleTop || activeLinkBottom > visibleBottom)) {
-            const targetScrollTop = activeLinkTop - toc.clientHeight * 0.35;
-            toc.scrollTo({ top: Math.max(targetScrollTop, 0), behavior: "auto" });
-          }
-
-          const linkCenters = items.map((item) => item.link.offsetTop + item.link.offsetHeight / 2);
-          let visualProgress = 0;
-
-          if (linkCenters.length === 1) {
-            visualProgress = anchorY >= headingTops[0] ? 1 : 0;
-          } else {
-            const currentCenter = linkCenters[activeIndex];
-            const nextCenter = linkCenters[Math.min(activeIndex + 1, linkCenters.length - 1)];
-            const interpolatedCenter = currentCenter + (nextCenter - currentCenter) * withinSegment;
-            const maxCenter = Math.max(linkCenters[linkCenters.length - 1], 1);
-            visualProgress = interpolatedCenter / maxCenter;
-          }
-
-          const clampedProgress = clamp(visualProgress, 0, 1);
           setActive(items[activeIndex].id);
-          tocList.style.setProperty("--toc-progress", String(clampedProgress));
+          tocList.style.setProperty("--toc-indicator-top", `${activeLinkTop}px`);
+          tocList.style.setProperty("--toc-indicator-height", `${activeLink.offsetHeight}px`);
         };
 
         let ticking = false;

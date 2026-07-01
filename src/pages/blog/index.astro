@@ -9,8 +9,8 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
-function makeExcerpt(markdownBody: string) {
-  const plainText = markdownBody
+function toPlainText(markdownBody: string) {
+  return markdownBody
     .replace(/\$\$[\s\S]*?\$\$/g, " ")
     .replace(/\$[^$\n]+\$/g, " ")
     .replace(/\\\[[\s\S]*?\\\]/g, " ")
@@ -26,9 +26,22 @@ function makeExcerpt(markdownBody: string) {
     .replace(/[>*_~]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
 
+function makeExcerpt(markdownBody: string) {
+  const plainText = toPlainText(markdownBody);
+  if (!plainText) return "Open this post to read the full note.";
   const words = plainText.split(" ");
   return words.length > 36 ? `${words.slice(0, 36).join(" ")}...` : plainText;
+}
+
+function getReadingTime(post: BlogPost) {
+  const plainText = toPlainText(post.body ?? "");
+  if (!plainText) return "1 min read";
+
+  const wordsPerMinute = 220;
+  const minutes = Math.max(1, Math.round(plainText.split(" ").length / wordsPerMinute));
+  return `${minutes} min read`;
 }
 
 function getOverview(post: BlogPost) {
@@ -48,6 +61,7 @@ const sortedPosts = posts.sort(
   description="Personal notes on classes, projects, ideas, and everything I am learning along the way."
 >
   <section class="page-heading">
+    <p class="eyebrow">{sortedPosts.length} posts</p>
     <h1 class="page-title yellowtail-regular">Writing</h1>
     <p class="page-summary">Notes on classes, side projects, reflections, and other things I care about.</p>
   </section>
@@ -55,15 +69,24 @@ const sortedPosts = posts.sort(
   {
     sortedPosts.length > 0 ? (
       <section class="writing-list" aria-label="Blog entries">
-        {sortedPosts.map((post) => (
-          <article class="writing-item">
-            <a class="writing-title" href={`/blog/${post.id}`}>
-              {post.data.title}
-            </a>
-            <p class="writing-meta">{dateFormatter.format(post.data.date)}</p>
-            <p class="writing-excerpt">{getOverview(post)}</p>
-          </article>
-        ))}
+        {sortedPosts.map((post) => {
+          const categories = post.data.categories ?? [];
+
+          return (
+            <article class="writing-item">
+              <a class="writing-title" href={`/blog/${post.id}`}>
+                {post.data.title}
+              </a>
+              <p class="writing-meta">
+                <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{getReadingTime(post)}</span>
+              </p>
+
+              <p class="writing-excerpt">{getOverview(post)}</p>
+            </article>
+          );
+        })}
       </section>
     ) : (
       <p class="empty-state">No writing published yet.</p>
