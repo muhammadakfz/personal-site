@@ -55,6 +55,10 @@ body:has(.site-main:not(.is-article)) {
 	min-height: 100vh;
 }
 
+body:has(.site-main.is-home) {
+	overflow: hidden;
+}
+
 .skip-link {
 	position: fixed;
 	top: 1rem;
