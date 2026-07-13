@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("https://fonts.gstatic.com/s/jetbrainsmono/v20/tDbY2o-flEEny0FZhsfKu5WU4xD-IQ.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 100 800;
+}
+
+:root { --black: #050505; --green: #FD3DB5; --cyan: #5fd7ff; --muted: #75807e; }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; background: var(--black); }
+body { color: #d3dcda; font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; -webkit-font-smoothing: antialiased; }
+button, a { font: inherit; }
+button { color: inherit; }
+
+.workstation {
+  position: relative; min-height: 100svh; overflow: hidden; padding: clamp(4px, 0.8vw, 10px);
+  display: grid; place-items: stretch; isolation: isolate; background:
+    radial-gradient(circle at 80% 0%, rgba(95, 215, 255, 0.055), transparent 31rem),
+    radial-gradient(circle at 10% 100%, rgba(253, 61, 181, 0.045), transparent 32rem), #050505;
+}
+.workstation::after { content: ""; position: fixed; inset: 0; z-index: -1; opacity: .065; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E"); }
+.ambient-grid { position: fixed; inset: 0; z-index: -2; opacity: .14; background-image: linear-gradient(rgba(253,61,181,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(253,61,181,.06) 1px, transparent 1px); background-size: 72px 72px; mask-image: radial-gradient(circle at center, black, transparent 76%); }
+.terminal-shell { width: 100%; height: 100%; min-height: calc(100svh - clamp(32px, 6vw, 68px)); display: block; background: transparent; }
+.terminal-stage { width: 100%; height: 100%; min-height: 0; padding: 0; cursor: text; }
+.terminal { width: 100%; height: 100%; min-height: 0; }
+.xterm { height: 100%; }
+.xterm .xterm-viewport { scrollbar-width: thin; scrollbar-color: #20342d transparent; }
+.xterm .xterm-screen { text-shadow: 0 0 14px rgba(164,255,221,.055); }
+@media (max-width: 720px) {
+  .workstation { padding: 4px; }
+  .terminal-shell { min-height: calc(100svh - 8px); }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }

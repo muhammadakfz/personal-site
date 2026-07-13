@@ -1,0 +1,17 @@
+MUHAMMADAKFZ — SOFTWARE & AI DEVELOPER
+
+PROFILE
+Developer and physics student building thoughtful software, AI systems, and technical projects.
+
+FOCUS
+Full-stack engineering, applied AI, developer tools, technical research.
+
+SKILLS
+Frontend: React, Next.js, Tailwind CSS
+Backend: Node.js, Python, FastAPI
+AI: Machine Learning, LLM, Computer Vision
+Tools: Docker, Linux, Git
+
+LINKS
+GitHub: https://github.com/muhammadakfz
+LinkedIn: https://www.linkedin.com/in/muhammadakfz
