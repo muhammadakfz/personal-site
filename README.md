@@ -8,6 +8,8 @@ An interactive developer portfolio built as a read-only Linux workstation. Visit
 - Linux boot sequence, path-aware prompt, command history, and Tab autocomplete
 - virtual filesystem with `ls`, `cd`, `pwd`, `cat`, and `tree`
 - system commands including `uname`, `whoami`, `id`, `env`, `date`, `which`, and `man`
+- embedded Vim-style editor for `.py`, `.cpp`, `.txt`, and `.md` workspace files
+- animated scanlines, ambient grid breathing, and subtle terminal glow
 - project launcher and clickable contact links
 - responsive quick-command dock for mobile
 - `neofetch` plus hidden `matrix`, `coffee`, and `sudo hire muhammadakfz` commands

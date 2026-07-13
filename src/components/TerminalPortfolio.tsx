@@ -7,12 +7,14 @@ import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef } from "react";
 
 type FsNode = { type: "dir"; children: string[] } | { type: "file"; content: string[] };
+type EditorMode = "normal" | "insert" | "command";
+type EditorState = { path: string; lines: string[]; row: number; col: number; mode: EditorMode; command: string; dirty: boolean };
 
 const HOME = "/root";
 const COMMANDS = [
   "help", "man", "ls", "cd", "pwd", "cat", "tree", "whoami", "id", "hostname",
-  "uname", "date", "history", "echo", "env", "which", "clear", "neofetch", "open",
-  "about", "projects", "skills", "experience", "contact", "resume", "matrix", "coffee",
+  "uname", "date", "history", "echo", "env", "which", "clear", "nvim", "neofetch", "open",
+  "about", "projects", "skills", "experience", "contact", "resume", "status", "matrix", "coffee",
 ];
 
 const FS: Record<string, FsNode> = {
@@ -23,7 +25,7 @@ const FS: Record<string, FsNode> = {
   "/etc/motd": { type: "file", content: ["Welcome to muhammadakfz Linux.", "This root filesystem is read-only by design."] },
   "/etc/os-release": { type: "file", content: ["NAME=\"muhammadakfz Linux\"", "VERSION=\"1.0 Workstation\"", "ID=muhammadakfz", "PRETTY_NAME=\"muhammadakfz Linux 1.0\""] },
   "/home": { type: "dir", children: ["root"] },
-  [HOME]: { type: "dir", children: ["about.txt", "contact.txt", "experience.log", "projects", "resume.txt", "skills"] },
+  [HOME]: { type: "dir", children: ["about.txt", "contact.txt", "experience.log", "projects", "resume.txt", "skills", "code"] },
   [`${HOME}/about.txt`]: { type: "file", content: [
     "MUHAMMADAKFZ / SOFTWARE & AI DEVELOPER", "",
     "Developer and physics student building thoughtful software, AI systems,",
@@ -66,12 +68,19 @@ const FS: Record<string, FsNode> = {
   [`${HOME}/skills/backend.conf`]: { type: "file", content: ["Node.js", "Python", "FastAPI"] },
   [`${HOME}/skills/ai.conf`]: { type: "file", content: ["Machine Learning", "Large Language Models", "Computer Vision"] },
   [`${HOME}/skills/tools.conf`]: { type: "file", content: ["Docker", "Linux", "Git"] },
+  [`${HOME}/code`]: { type: "dir", children: ["hello.py", "main.cpp"] },
+  [`${HOME}/code/hello.py`]: { type: "file", content: [
+    "#!/usr/bin/env python3", "", "def main():", "    print(\"hello from muhammadakfz\")", "", "", "if __name__ == \"__main__\":", "    main()",
+  ] },
+  [`${HOME}/code/main.cpp`]: { type: "file", content: [
+    "#include <iostream>", "", "int main() {", "    std::cout << \"hello from muhammadakfz\\n\";", "    return 0;", "}",
+  ] },
   "/opt": { type: "dir", children: ["muhammadakfz"] },
   "/opt/muhammadakfz": { type: "dir", children: ["README"] },
   "/opt/muhammadakfz/README": { type: "file", content: ["muhammadakfz Linux workstation runtime.", "Built with Next.js, React, xterm.js, and Framer Motion."] },
   "/tmp": { type: "dir", children: [] },
   "/usr": { type: "dir", children: ["bin", "share"] },
-  "/usr/bin": { type: "dir", children: ["env", "id", "man", "neofetch", "which", "whoami"] },
+  "/usr/bin": { type: "dir", children: ["env", "id", "man", "neofetch", "nvim", "which", "whoami"] },
   "/usr/share": { type: "dir", children: [] },
   "/var": { type: "dir", children: ["log"] },
   "/var/log": { type: "dir", children: ["boot.log"] },
@@ -112,6 +121,8 @@ export default function TerminalPortfolio() {
   const historyIndexRef = useRef(0);
   const cwdRef = useRef(HOME);
   const bootedRef = useRef(false);
+  const editorRef = useRef<EditorState | null>(null);
+  const fileOverridesRef = useRef<Record<string, string[]>>({});
 
   const prompt = useCallback(() => `${green("root@muhammadakfz")}:${blue(displayPath(cwdRef.current))}# `, []);
   const writePrompt = useCallback((terminal: Terminal) => terminal.write(`\r\n${prompt()}`), [prompt]);
@@ -129,9 +140,9 @@ export default function TerminalPortfolio() {
     bold("MUHAMMADAKFZ LINUX — COMMAND REFERENCE"), "",
     `${green("Filesystem")}  ls [-la] · cd <dir> · pwd · cat <file> · tree [dir]`,
     `${green("System    ")}  whoami · id · hostname · uname [-a] · date · env · which`,
-    `${green("Shell     ")}  echo · history · man <command> · clear`,
+    `${green("Shell     ")}  echo · history · man <command> · clear · nvim <file>`,
     `${green("Workspace ")}  about · projects · skills · experience · contact · resume`,
-    `${green("Extras    ")}  neofetch · matrix · coffee · sudo hire muhammadakfz`, "",
+    `${green("Extras    ")}  status · neofetch · matrix · coffee · sudo hire muhammadakfz`, "",
     dim("Use ↑/↓ for history, Tab for completion, and Ctrl+L to clear."),
   ]);
 
@@ -146,6 +157,106 @@ export default function TerminalPortfolio() {
       if (child?.type === "dir") printTree(terminal, childPath, `${prefix}${last ? "    " : "│   "}`, depth + 1);
     });
   };
+
+  const renderEditor = useCallback((terminal: Terminal, state: EditorState) => {
+    const visibleRows = Math.max(1, terminal.rows - 4);
+    state.row = Math.max(0, Math.min(state.row, Math.min(state.lines.length - 1, visibleRows - 1)));
+    const activeLine = state.lines[state.row] ?? "";
+    state.col = Math.max(0, Math.min(state.col, activeLine.length));
+    terminal.write("\x1b[2J\x1b[H");
+    terminal.writeln(`${green("  NVIM")} ${dim("·")} ${blue(state.path)}${state.dirty ? green(" [+]") : ""}`);
+    terminal.writeln(dim("  i insert   esc normal   :w save   :q quit   :wq save + quit"));
+    for (let index = 0; index < visibleRows; index += 1) {
+      if (index < state.lines.length) {
+        const number = String(index + 1).padStart(3, " ");
+        const line = state.lines[index] || " ";
+        const active = index === state.row;
+        terminal.writeln(`${active ? "\x1b[48;2;43;16;36m" : ""}${dim(number)} ${line}\x1b[0m`);
+      } else {
+        terminal.writeln(dim("~"));
+      }
+    }
+    terminal.write(`\x1b[${terminal.rows};1H\x1b[48;2;21;21;26m${dim(`  ${state.mode === "command" ? `:${state.command}` : `-- ${state.mode.toUpperCase()} --`}`.padEnd(Math.max(1, terminal.cols), " "))}\x1b[0m`);
+    terminal.write(state.mode === "command" ? `\x1b[${terminal.rows};${state.command.length + 4}H` : `\x1b[${state.row + 3};${state.col + 5}H`);
+  }, []);
+
+  const openEditor = useCallback((terminal: Terminal, path: string) => {
+    const node = FS[path];
+    if (!node || node.type !== "file") return;
+    const existing = fileOverridesRef.current[path] ?? node.content;
+    const state: EditorState = { path, lines: [...existing], row: 0, col: 0, mode: "normal", command: "", dirty: false };
+    editorRef.current = state;
+    renderEditor(terminal, state);
+  }, [renderEditor]);
+
+  const exitEditor = useCallback((terminal: Terminal, save: boolean) => {
+    const state = editorRef.current;
+    if (!state) return;
+    if (save) fileOverridesRef.current[state.path] = [...state.lines];
+    editorRef.current = null;
+    terminal.clear();
+    terminal.write("\x1b[2J\x1b[H");
+    terminal.writeln(dim(save ? `saved ${displayPath(state.path)}` : `closed ${displayPath(state.path)}`));
+    terminal.write(prompt());
+  }, [prompt]);
+
+  const handleEditorData = useCallback((terminal: Terminal, data: string) => {
+    const state = editorRef.current;
+    if (!state) return;
+    const line = () => state.lines[state.row] ?? "";
+    const move = (rowDelta: number, colDelta: number) => {
+      state.row = Math.max(0, Math.min(state.lines.length - 1, state.row + rowDelta));
+      state.col = Math.max(0, Math.min((state.lines[state.row] ?? "").length, state.col + colDelta));
+    };
+
+    if (state.mode === "command") {
+      if (data === "\x1b") { state.mode = "normal"; state.command = ""; }
+      else if (data === "\r") {
+        const command = state.command.trim();
+        if (command === "w") {
+          fileOverridesRef.current[state.path] = [...state.lines];
+          state.dirty = false; state.mode = "normal"; state.command = "";
+        } else if (command === "wq" || command === "x") { exitEditor(terminal, true); return; }
+        else if (command === "q" || command === "q!") { exitEditor(terminal, false); return; }
+        else { state.command = `E492: ${command || "not an editor command"}`; }
+      } else if (data === "\u007f") state.command = state.command.slice(0, -1);
+      else if (data.charCodeAt(0) >= 32) state.command += data;
+      renderEditor(terminal, state);
+      return;
+    }
+
+    if (data === "\x1b[A") move(-1, 0);
+    else if (data === "\x1b[B") move(1, 0);
+    else if (data === "\x1b[C") move(0, 1);
+    else if (data === "\x1b[D") move(0, -1);
+    else if (state.mode === "normal") {
+      if (data === "i") state.mode = "insert";
+      else if (data === "a") { state.col = Math.min(line().length, state.col + 1); state.mode = "insert"; }
+      else if (data === "o") { state.lines.splice(state.row + 1, 0, ""); state.row += 1; state.col = 0; state.mode = "insert"; state.dirty = true; }
+      else if (data === "h") move(0, -1);
+      else if (data === "j") move(1, 0);
+      else if (data === "k") move(-1, 0);
+      else if (data === "l") move(0, 1);
+      else if (data === "x" && line().length) { state.lines[state.row] = line().slice(0, state.col) + line().slice(state.col + 1); state.dirty = true; }
+      else if (data === ":") { state.mode = "command"; state.command = ""; }
+    } else if (state.mode === "insert") {
+      if (data === "\x1b") state.mode = "normal";
+      else if (data === "\r") {
+        const current = line();
+        state.lines[state.row] = current.slice(0, state.col);
+        state.lines.splice(state.row + 1, 0, current.slice(state.col));
+        state.row += 1; state.col = 0; state.dirty = true;
+      } else if (data === "\u007f") {
+        if (state.col > 0) { const current = line(); state.lines[state.row] = current.slice(0, state.col - 1) + current.slice(state.col); state.col -= 1; state.dirty = true; }
+        else if (state.row > 0) { const previous = state.lines[state.row - 1]; const current = line(); state.lines.splice(state.row, 1); state.row -= 1; state.col = previous.length; state.lines[state.row] = previous + current; state.dirty = true; }
+      } else if (data.charCodeAt(0) >= 32 && !data.startsWith("\x1b")) {
+        const current = line();
+        state.lines[state.row] = current.slice(0, state.col) + data + current.slice(state.col);
+        state.col += data.length; state.dirty = true;
+      }
+    }
+    renderEditor(terminal, state);
+  }, [exitEditor, renderEditor]);
 
   const runCommand = useCallback((terminal: Terminal, raw: string) => {
     const commandLine = raw.trim();
@@ -212,10 +323,11 @@ export default function TerminalPortfolio() {
       case "cat": {
         if (!args.length) terminal.writeln("cat: missing file operand");
         args.forEach((arg) => {
-          const node = FS[normalizePath(cwdRef.current, arg)];
+          const path = normalizePath(cwdRef.current, arg);
+          const node = FS[path];
           if (!node) terminal.writeln(`cat: ${arg}: No such file or directory`);
           else if (node.type === "dir") terminal.writeln(`cat: ${arg}: Is a directory`);
-          else lines(terminal, node.content);
+          else lines(terminal, fileOverridesRef.current[path] ?? node.content);
         });
         break;
       }
@@ -240,6 +352,24 @@ export default function TerminalPortfolio() {
       case "experience": lines(terminal, (FS[`${HOME}/experience.log`] as { type: "file"; content: string[] }).content); break;
       case "contact": lines(terminal, (FS[`${HOME}/contact.txt`] as { type: "file"; content: string[] }).content); break;
       case "resume": lines(terminal, [`${green("✓")} Resume mounted and ready.`, `${dim("Download:")} ${window.location.origin}/resume.txt`]); break;
+      case "nvim": {
+        const target = args[0];
+        if (!target) terminal.writeln("nvim: missing file operand");
+        else {
+          const path = normalizePath(cwdRef.current, target);
+          const node = FS[path];
+          if (!node) terminal.writeln(`nvim: ${target}: No such file or directory`);
+          else if (node.type === "dir") terminal.writeln(`nvim: ${target}: Is a directory`);
+          else openEditor(terminal, path);
+        }
+        break;
+      }
+      case "status": lines(terminal, [
+        `${green("● ONLINE")}  root session / read-only filesystem`,
+        `${dim("uptime   ")}  always building`,
+        `${dim("focus    ")}  software · AI · physics`,
+        `${dim("signal   ")}  pink / cyan / terminal-native`,
+      ]); break;
       case "open": {
         const project = args.join("-").toLowerCase();
         const url = PROJECT_URLS[project];
@@ -274,8 +404,8 @@ export default function TerminalPortfolio() {
         terminal.writeln(`zsh: command not found: ${command}`);
         terminal.writeln(dim("Type 'help' or 'man <command>' for assistance."));
     }
-    writePrompt(terminal);
-  }, [prompt, writePrompt]);
+    if (!editorRef.current) writePrompt(terminal);
+  }, [openEditor, prompt, writePrompt]);
 
   useEffect(() => {
     if (!terminalElement.current) return;
@@ -290,7 +420,12 @@ export default function TerminalPortfolio() {
     terminal.loadAddon(new WebLinksAddon((_event, uri) => window.open(uri, "_blank", "noopener,noreferrer")));
     terminal.open(terminalElement.current);
     terminalRef.current = terminal;
-    const fitTerminal = () => { try { fit.fit(); } catch { /* layout transition */ } };
+    const fitTerminal = () => {
+      try {
+        fit.fit();
+        if (editorRef.current) renderEditor(terminal, editorRef.current);
+      } catch { /* layout transition */ }
+    };
     const observer = new ResizeObserver(fitTerminal);
     observer.observe(terminalElement.current);
     fitTerminal();
@@ -311,8 +446,10 @@ export default function TerminalPortfolio() {
       // Keep the startup delay, but leave the kernel/service chatter behind the scenes.
       await new Promise((resolve) => window.setTimeout(resolve, 420));
       if (cancelled) return;
-      terminal.writeln(dim("Type 'help' to explore."));
-      terminal.writeln(dim("Try 'ls -la' to inspect the filesystem."));
+      terminal.writeln(`${green("  ◼")} ${bold("muhammadakfz")} ${dim("// root session online")}`);
+      terminal.writeln(dim("  software  /  AI  /  physics"));
+      terminal.writeln("");
+      terminal.writeln(`${dim("  cat about.txt")}     ${dim("tree projects/")}     ${dim("nvim code/hello.py")}`);
       terminal.writeln("");
       terminal.write(prompt());
       bootedRef.current = true;
@@ -321,6 +458,7 @@ export default function TerminalPortfolio() {
     boot();
 
     const disposable = terminal.onData((data) => {
+      if (editorRef.current) { handleEditorData(terminal, data); return; }
       if (!bootedRef.current) return;
       const code = data.charCodeAt(0);
       if (data === "\r") {
@@ -365,7 +503,7 @@ export default function TerminalPortfolio() {
       cancelled = true; disposable.dispose(); observer.disconnect(); window.removeEventListener("keydown", onZoomKeyDown); terminal.dispose();
       terminalRef.current = null; bootedRef.current = false;
     };
-  }, [prompt, replaceInput, runCommand, writePrompt]);
+  }, [handleEditorData, prompt, renderEditor, replaceInput, runCommand, writePrompt]);
 
   return (
     <main className="workstation">
