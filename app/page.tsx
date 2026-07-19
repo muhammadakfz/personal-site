@@ -11,8 +11,9 @@ export default function Home() {
         </h1>
         <p className="hero-intro">
           <span className="hero-intro-role">Software developer</span> and{' '}
-          <span className="hero-intro-role">physics student</span> building thoughtful
-          software, AI systems, and tools that turn complex ideas into useful products.
+          <span className="hero-intro-role">physics student</span> exploring scientific
+          computing, applied AI, and wave phenomena through code, small experiments, and
+          technical writing.
         </p>
       </div>
 
