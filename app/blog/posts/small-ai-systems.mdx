@@ -1,0 +1,57 @@
+---
+title: 'Small AI Systems That Stay Useful'
+publishedAt: '2026-05-19'
+summary: 'Why narrow scope, visible feedback, and ordinary software engineering often matter more than a larger model.'
+---
+
+The most useful AI feature is rarely the one that tries to do everything. It is usually the one with a narrow responsibility, a clear place in the workflow, and an obvious way for people to correct it.
+
+This is less exciting than a fully autonomous demo, but it is much closer to how reliable products are built.
+
+## Begin with a bounded job
+
+“Help the user write” is broad. “Turn these meeting notes into three follow-up actions” is bounded. A bounded job gives the system a definition of success and gives the user a result they can evaluate quickly.
+
+Good boundaries also make technical decisions easier. You can choose the context, prompt, model, latency budget, and fallback behavior based on one task instead of an imagined general intelligence.
+
+## Make uncertainty visible
+
+AI output can sound confident even when it is weak. A useful interface should not hide that uncertainty behind polished prose.
+
+Depending on the task, uncertainty can be made visible through:
+
+- source references,
+- editable intermediate results,
+- a short explanation of assumptions,
+- confidence thresholds,
+- or a request for missing context.
+
+The right pattern is not always a confidence score. The important part is giving users enough evidence to decide whether to trust the result.
+
+## Treat correction as product data
+
+When a user rewrites an answer, rejects a suggestion, or changes a category, that action describes the gap between the system's behavior and the user's intent.
+
+Even without training a model, these corrections are valuable. They reveal ambiguous prompts, missing context, weak defaults, and tasks that should not be automated.
+
+A simple feedback loop often improves the product faster than switching to a larger model.
+
+## Build the non-AI path too
+
+Models time out. Providers have incidents. Context can be incomplete. Some inputs should never be processed automatically.
+
+The surrounding product needs ordinary engineering:
+
+- validation before a request is sent,
+- permission checks,
+- deterministic handling for known cases,
+- useful error states,
+- and a manual path when automation fails.
+
+The model is one component in the system, not the system itself.
+
+## Measure usefulness, not activity
+
+The number of generations is easy to count and easy to misunderstand. A better measure asks whether the feature helped someone complete the intended task with less effort or better results.
+
+Small AI systems can be remarkably valuable when their boundaries are honest. They do not need to replace a workflow. Sometimes the best contribution is removing one frustrating step and doing it consistently well.

@@ -1,0 +1,50 @@
+---
+title: 'What Resonance Can Teach Us About Software'
+publishedAt: '2026-04-07'
+summary: 'A physics-inspired note on feedback, timing, and why small repeated forces can reshape a software system.'
+---
+
+In a driven physical system, a small periodic force can produce a large response when its frequency approaches the system's natural frequency. This is resonance: the effect of timing and structure, not merely force.
+
+Software systems have no literal natural frequency, but the analogy is useful. Repeated inputs can align with a system's weak points and create effects far larger than each input suggests.
+
+## Repetition changes the problem
+
+A slow operation may be harmless when it runs once. Place it inside a frequent request path and it becomes a bottleneck. A minor memory leak may be invisible during testing and destructive after days of continuous operation.
+
+The important variable is not only the cost of an action. It is the relationship between that cost and how often the system experiences it.
+
+This is why realistic load patterns matter. Averages can hide the rhythm that actually stresses a system.
+
+## Feedback can amplify behavior
+
+Physical oscillators become more interesting when the output influences the next input. Software contains similar loops:
+
+- retries create more traffic during an outage,
+- recommendations influence the data used for future recommendations,
+- alerts cause operators to make changes that trigger more alerts,
+- caching changes which requests reach the database.
+
+A feedback loop can stabilize a system or amplify a disturbance. The difference often depends on delay, gain, and whether the response is proportional to the problem.
+
+## Damping is a design choice
+
+In mechanics, damping removes energy from an oscillating system. In software, rate limits, backoff, queues, and circuit breakers play a similar role. They prevent a disturbance from growing without bound.
+
+Good damping is not simply “slowing things down.” It gives the system time to recover while preserving useful work.
+
+Exponential backoff is a good example. When a dependency fails, immediate repeated retries add energy to the failure. Increasing the delay between attempts reduces pressure and gives the dependency room to return.
+
+## Observe the shape, not only the total
+
+Two systems can process the same number of requests and experience very different conditions. One receives steady traffic. The other receives sharp synchronized bursts.
+
+Totals describe quantity. Time-series data describes behavior.
+
+When diagnosing a system, look for periodicity, delay, and correlation. A regular spike may reveal a scheduled job. A wave of errors after each deploy may point to cold starts. A queue that grows and collapses repeatedly may indicate unstable control logic.
+
+## The value of the analogy
+
+Physics does not provide a direct formula for every software problem. The useful habit is learning to look for structure: what repeats, what feeds back, what stores energy, and what removes it.
+
+Sometimes a system fails because one event is too large. Often, it fails because many small events arrive with exactly the wrong timing.
