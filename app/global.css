@@ -149,6 +149,53 @@ table {
   text-wrap: balance;
 }
 
+.hero-intro {
+  position: relative;
+  max-width: 38rem;
+  padding-left: 1rem;
+  color: rgb(82 82 82);
+  font-size: 1rem;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.hero-intro::before {
+  position: absolute;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  left: 0;
+  width: 1px;
+  border-radius: 999px;
+  background: rgb(212 212 212);
+  content: '';
+}
+
+.hero-intro-role {
+  color: rgb(23 23 23);
+  font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .hero-intro {
+    padding-left: 1.25rem;
+    font-size: 1.0625rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .hero-intro {
+    color: rgb(163 163 163);
+  }
+
+  .hero-intro::before {
+    background: rgb(64 64 64);
+  }
+
+  .hero-intro-role {
+    color: rgb(229 229 229);
+  }
+}
+
 /* KaTeX LaTeX styling */
 .katex-display {
   @apply my-6 overflow-x-auto overflow-y-hidden py-3;

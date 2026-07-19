@@ -9,10 +9,10 @@ export default function Home() {
         <h1 className="text-4xl font-bold tracking-tight">
           Hi, I&apos;m <span className="text-neutral-400">muhammadakfz</span>
         </h1>
-        <p className="text-lg text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-2xl">
-          I work between software and physics—building web products, AI-assisted tools,
-          and small simulations. This is where I keep the things I make and the ideas
-          I&apos;m still learning.
+        <p className="hero-intro">
+          <span className="hero-intro-role">Software developer</span> and{' '}
+          <span className="hero-intro-role">physics student</span> building thoughtful
+          software, AI systems, and tools that turn complex ideas into useful products.
         </p>
       </div>
 
